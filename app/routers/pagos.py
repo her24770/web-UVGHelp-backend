@@ -1,20 +1,29 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.pago import Pago
 from app.schemas.pago import PagoCreate, PagoUpdate, PagoResponse
+from app.schemas.pagination import PagedResponse
 from app.services import crud
 from app.utils.responses import raise_not_found
 from app.utils.auth import get_current_user
+from app.utils.pagination import paginate
 
 router = APIRouter(prefix="/api/pagos", tags=["pagos"], dependencies=[Depends(get_current_user)])
 
 
-# retorna lista de todos los pagos/aranceles
-@router.get("", response_model=list[PagoResponse])
-def listar_pagos(db: Session = Depends(get_db)):
-    return crud.get_all(db, Pago)
+# retorna pagos paginados, con búsqueda por concepto y ordenamiento
+@router.get("", response_model=PagedResponse[PagoResponse])
+def listar_pagos(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    q: str | None = Query(None),
+    sort: str | None = Query(None),
+    order: str = Query("asc", pattern="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+):
+    return paginate(db, Pago, page, limit, q, sort, order, search_field="concepto")
 
 
 # retorna un pago por id, error 404 si no existe

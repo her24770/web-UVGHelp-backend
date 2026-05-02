@@ -1,20 +1,29 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.evento import Evento
 from app.schemas.evento import EventoCreate, EventoUpdate, EventoResponse
+from app.schemas.pagination import PagedResponse
 from app.services import crud
 from app.utils.responses import raise_not_found
 from app.utils.auth import get_current_user
+from app.utils.pagination import paginate
 
 router = APIRouter(prefix="/api/eventos", tags=["eventos"], dependencies=[Depends(get_current_user)])
 
 
-# retorna lista de todos los eventos
-@router.get("", response_model=list[EventoResponse])
-def listar_eventos(db: Session = Depends(get_db)):
-    return crud.get_all(db, Evento)
+# retorna eventos paginados, con búsqueda por título y ordenamiento
+@router.get("", response_model=PagedResponse[EventoResponse])
+def listar_eventos(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    q: str | None = Query(None),
+    sort: str | None = Query(None),
+    order: str = Query("asc", pattern="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+):
+    return paginate(db, Evento, page, limit, q, sort, order, search_field="titulo")
 
 
 # retorna un evento por id, error 404 si no existe

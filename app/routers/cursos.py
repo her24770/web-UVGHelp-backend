@@ -1,20 +1,29 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.curso import Curso
 from app.schemas.curso import CursoCreate, CursoUpdate, CursoResponse
+from app.schemas.pagination import PagedResponse
 from app.services import crud
 from app.utils.responses import raise_not_found
 from app.utils.auth import get_current_user
+from app.utils.pagination import paginate
 
 router = APIRouter(prefix="/api/cursos", tags=["cursos"], dependencies=[Depends(get_current_user)])
 
 
-# retorna lista de todos los cursos
-@router.get("", response_model=list[CursoResponse])
-def listar_cursos(db: Session = Depends(get_db)):
-    return crud.get_all(db, Curso)
+# retorna cursos paginados, con búsqueda por nombre y ordenamiento
+@router.get("", response_model=PagedResponse[CursoResponse])
+def listar_cursos(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    q: str | None = Query(None),
+    sort: str | None = Query(None),
+    order: str = Query("asc", pattern="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+):
+    return paginate(db, Curso, page, limit, q, sort, order)
 
 
 # retorna un curso por id, error 404 si no existe

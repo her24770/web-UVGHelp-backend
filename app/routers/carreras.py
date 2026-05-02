@@ -1,20 +1,29 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.carrera import Carrera
 from app.schemas.carrera import CarreraCreate, CarreraUpdate, CarreraResponse
+from app.schemas.pagination import PagedResponse
 from app.services import crud
 from app.utils.responses import raise_not_found
 from app.utils.auth import get_current_user
+from app.utils.pagination import paginate
 
 router = APIRouter(prefix="/api/carreras", tags=["carreras"], dependencies=[Depends(get_current_user)])
 
 
-# retorna lista de todas las carreras
-@router.get("", response_model=list[CarreraResponse])
-def listar_carreras(db: Session = Depends(get_db)):
-    return crud.get_all(db, Carrera)
+# retorna carreras paginadas, con búsqueda por nombre y ordenamiento
+@router.get("", response_model=PagedResponse[CarreraResponse])
+def listar_carreras(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    q: str | None = Query(None),
+    sort: str | None = Query(None),
+    order: str = Query("asc", pattern="^(asc|desc)$"),
+    db: Session = Depends(get_db),
+):
+    return paginate(db, Carrera, page, limit, q, sort, order)
 
 
 # retorna una carrera por id, error 404 si no existe
