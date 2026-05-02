@@ -30,7 +30,7 @@ docker compose up --build
 ```
 
 La API estará disponible en:
-- API: http://localhoLugares — tiene imagen, categoría con badge, horario. Es la más visual.Eventos — tiene fecha, tipo con badge de color, relación con lugar. Buena para mostrar filtros.Carreras — simple, buena para mostrar tabla limpia con pocos campos.Profesores — tiene foto, departamento, email. Buena para mostrar avatares en tabla.st:8000
+- API: http://localhost:8000
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
