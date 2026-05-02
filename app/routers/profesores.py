@@ -9,6 +9,8 @@ from app.services import crud
 from app.utils.responses import raise_not_found
 from app.utils.auth import get_current_user
 from app.utils.pagination import paginate
+from app.services.export_service import generate_csv, generate_xlsx
+from fastapi.responses import Response
 
 router = APIRouter(prefix="/api/profesores", tags=["profesores"], dependencies=[Depends(get_current_user)])
 
@@ -57,3 +59,15 @@ def eliminar_profesor(id: uuid.UUID, db: Session = Depends(get_db)):
     if not profesor:
         raise_not_found("Profesor", id)
     crud.delete(db, profesor)
+
+
+@router.get("/export/csv")
+def exportar_csv(db: Session = Depends(get_db)):
+    content = generate_csv(db, Profesor)
+    return Response(content=content, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=profesores.csv"})
+
+
+@router.get("/export/xlsx")
+def exportar_xlsx(db: Session = Depends(get_db)):
+    content = generate_xlsx(db, Profesor)
+    return Response(content=content, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=profesores.xlsx"})
