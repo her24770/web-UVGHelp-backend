@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.routers import lugares, carreras, contactos, pagos, eventos, servicios, profesores, usuarios, cursos, auth
+from app.routers import lugares, carreras, contactos, pagos, eventos, servicios, profesores, usuarios, cursos, auth, upload
 
 app = FastAPI(
     title="UVGHelp API",
@@ -56,6 +56,7 @@ app.include_router(servicios.router)
 app.include_router(profesores.router)
 app.include_router(usuarios.router)
 app.include_router(cursos.router)
+app.include_router(upload.router)
 
 
 @app.get("/", tags=["health"])
