@@ -1,6 +1,6 @@
 import hashlib
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.usuario import Usuario
@@ -10,11 +10,16 @@ from app.utils.auth import create_access_token, get_current_user
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
 # login con email y password, retorna JWT bearer token
 @router.post("/login")
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(Usuario).filter(Usuario.email == form.username).first()
-    if not user or user.password_hash != hashlib.sha256(form.password.encode()).hexdigest():
+def login(body: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(Usuario).filter(Usuario.email == body.email).first()
+    if not user or user.password_hash != hashlib.sha256(body.password.encode()).hexdigest():
         raise HTTPException(
             status_code=401,
             detail={"error": True, "code": "UNAUTHORIZED", "message": "Credenciales inválidas", "status": 401},

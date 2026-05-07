@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "cambia-esto-en-produccion"
     JWT_EXPIRE_HOURS: int = 24
 
-    model_config = {"env_file": ".env"}
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
 
 settings = Settings()
