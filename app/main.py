@@ -58,7 +58,6 @@ app.include_router(usuarios.router)
 app.include_router(cursos.router)
 app.include_router(upload.router)
 
-
-@app.get("/", tags=["health"])
-def health_check():
-    return {"status": "ok", "message": "UVGHelp API corriendo"}
+@app.get("/nan", tags=["health"])
+def nandez():
+    return "dez"
