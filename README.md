@@ -4,7 +4,7 @@
 
 - Frontend: https://github.com/her24770/web-UVGHelp-frontend
 - Backend: https://github.com/her24770/web-UVGHelp-backend
-- Sitio publicado: https://uvg.jhgo.online/web/UVHelp
+- Sitio publicado: https://UVHelp.jhgo.online
 
 API REST para el sistema de información universitaria UVGHelp — Universidad del Valle de Guatemala.
 
